@@ -25,7 +25,11 @@ const limiter = rateLimit({
 // Middleware
 app.use(limiter);
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://file-sharing-app-weld-five.vercel.app',
+    'https://file-sharing-app-1g9twn8fp-ayush-singhs-projects-0673b675.vercel.app'
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
