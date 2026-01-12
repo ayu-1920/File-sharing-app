@@ -29,7 +29,7 @@ const Register = () => {
   }, [clearError]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -37,7 +37,7 @@ const Register = () => {
     
     // Handle checkbox separately
     if (name === 'saveCredentials') {
-      setSaveCredentials(checked);
+      setSaveCredentials(e.target.checked);
     }
     
     // Clear error for this field when user starts typing

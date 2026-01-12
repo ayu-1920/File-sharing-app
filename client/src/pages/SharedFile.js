@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fileService, formatFileSize } from '../services/api';
 
@@ -7,13 +7,8 @@ const SharedFile = () => {
   const [fileInfo, setFileInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [downloading, setDownloading] = useState(false);
 
-  useEffect(() => {
-    fetchFileInfo();
-  }, [shareId]);
-
-  const fetchFileInfo = async () => {
+  const fetchFileInfo = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -31,7 +26,11 @@ const SharedFile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [shareId]);
+
+  useEffect(() => {
+    fetchFileInfo();
+  }, [fetchFileInfo]);
 
 const handleDownload = () => {
   window.location.href = `http://localhost:5000/api/files/download/${shareId}`;
@@ -136,10 +135,10 @@ const handleDownload = () => {
         <div className="download-section">
           <button
             onClick={handleDownload}
-            disabled={downloading || isExpired(fileInfo.expiresAt)}
+            disabled={isExpired(fileInfo.expiresAt)}
             className="btn btn-primary btn-large btn-block"
           >
-            {downloading ? 'Downloading...' : '📥 Download File'}
+            📥 Download File
           </button>
           
           {isExpired(fileInfo.expiresAt) && (

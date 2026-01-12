@@ -69,21 +69,19 @@ authApi.interceptors.response.use(
 );
 
 // Auth API
-export const authService = {
-  login: async (email, password) => {
-    const response = await authApi.post('/auth/login', { email, password });
-    return response.data;
-  },
+export const login = async (email, password) => {
+  const response = await authApi.post('/auth/login', { email, password });
+  return response.data;
+};
 
-  register: async (username, email, password) => {
-    const response = await authApi.post('/auth/register', { username, email, password });
-    return response.data;
-  },
+export const register = async (username, email, password) => {
+  const response = await authApi.post('/auth/register', { username, email, password });
+  return response.data;
+};
 
-  getCurrentUser: async () => {
-    const response = await authApi.get('/auth/me');
-    return response.data;
-  },
+export const getCurrentUser = async () => {
+  const response = await authApi.get('/auth/me');
+  return response.data;
 };
 
 // File API
@@ -185,12 +183,7 @@ export const copyToClipboard = async (text) => {
   }
 };
 
-export default {
+export {
   authApi,
-  fileApi,
-  authService,
-  fileService,
-  formatFileSize,
-  getFileIcon,
-  copyToClipboard
+  fileApi
 };

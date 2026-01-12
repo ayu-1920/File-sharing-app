@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import { authApi } from '../services/api';
 
 // Create context
 const AuthContext = createContext();
@@ -95,16 +95,16 @@ export const AuthProvider = ({ children }) => {
   // Set auth token in API headers
   const setAuthToken = (token) => {
     if (token) {
-      authAPI.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      authApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       localStorage.setItem('token', token);
     } else {
-      delete authAPI.defaults.headers.common['Authorization'];
+      delete authApi.defaults.headers.common['Authorization'];
       localStorage.removeItem('token');
     }
   };
 
   // Load user from token
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     const token = localStorage.getItem('token');
     
     if (!token) {
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.LOAD_USER_START });
       setAuthToken(token);
       
-      const response = await authAPI.get('/me');
+      const response = await authApi.get('/me');
       
       if (response.data.success) {
         dispatch({ 
@@ -134,14 +134,14 @@ export const AuthProvider = ({ children }) => {
         payload: 'Session expired. Please login again.' 
       });
     }
-  };
+  }, []);
 
   // Login function
   const login = async (email, password) => {
     try {
       dispatch({ type: AUTH_ACTIONS.LOGIN_START });
       
-      const response = await authAPI.post('/login', { email, password });
+      const response = await authApi.post('/login', { email, password });
       
       if (response.data.success) {
         const { user, token } = response.data.data;
@@ -171,7 +171,7 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.REGISTER_START });
       
-      const response = await authAPI.post('/register', { 
+      const response = await authApi.post('/register', { 
         username, 
         email, 
         password 
@@ -214,7 +214,7 @@ export const AuthProvider = ({ children }) => {
   // Load user on initial render
   useEffect(() => {
     loadUser();
-  }, []);
+  }, [loadUser]);
 
   const value = {
     ...state,
