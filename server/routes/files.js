@@ -184,6 +184,7 @@ router.get('/share/:shareId', async (req, res) => {
 router.get('/download/:shareId', async (req, res) => {
   try {
     console.log(`📥 Download request for shareId: ${req.params.shareId}`);
+    console.log(`📅 Current time: ${new Date().toISOString()}`);
     
     const file = await File.findOne({ shareId: req.params.shareId });
 
@@ -196,6 +197,8 @@ router.get('/download/:shareId', async (req, res) => {
     }
 
     console.log(`✅ Found file: ${file.originalName}, path: ${file.path}`);
+    console.log(`⏰ File expires at: ${file.expiresAt.toISOString()}`);
+    console.log(`⏰ Is expired: ${file.isExpired()}`);
 
     // Check if file has expired
     if (file.isExpired()) {

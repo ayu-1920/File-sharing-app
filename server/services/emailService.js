@@ -135,7 +135,7 @@ const sendFileShareEmail = async (toEmail, fromUser, fileName, shareUrl, fileSiz
               </div>
               
               <div class="security-note">
-                <strong>🔒 Security Notice:</strong> This download link is secure and will expire after 7 days for your privacy and security.
+                <strong>🔒 Security Notice:</strong> This download link is secure and will expire after 30 days for your privacy and security.
               </div>
               
               <p>If you have any questions or didn't expect this file, please contact the sender directly.</p>
