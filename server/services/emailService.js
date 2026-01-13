@@ -2,12 +2,7 @@ const nodemailer = require('nodemailer');
 
 // Create a transporter using SendGrid (more reliable for cloud hosting)
 const createTransport = () => {
-  // Use SendGrid if API key is available, fallback to Gmail
-  console.log('Checking email configuration...');
-  console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? 'SET' : 'NOT SET');
-  console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-  console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
-  
+  // Always use SendGrid for production
   if (process.env.SENDGRID_API_KEY) {
     console.log('Using SendGrid transporter');
     return nodemailer.createTransport({
@@ -20,19 +15,9 @@ const createTransport = () => {
     });
   }
   
-  // Fallback to Gmail for development
-  console.log('Using Gmail transporter (fallback)');
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER || 'your-email@gmail.com',
-      pass: process.env.EMAIL_PASS || 'your-app-password'
-    },
-    // Add connection timeout settings
-    connectionTimeout: 60000, // 60 seconds
-    greetingTimeout: 30000,   // 30 seconds
-    socketTimeout: 60000      // 60 seconds
-  });
+  // Never use Gmail in production
+  console.log('Warning: Gmail not configured in production');
+  return null;
 };
 
 // Send file sharing email
