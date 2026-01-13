@@ -1,15 +1,30 @@
 const nodemailer = require('nodemailer');
 
-// Create a transporter using Gmail (you'll need to configure this)
+// Create a transporter using SendGrid (more reliable for cloud hosting)
 const createTransport = () => {
-  // For development, we'll use a test account
-  // In production, you should use environment variables for email credentials
+  // Use SendGrid if API key is available, fallback to Gmail
+  if (process.env.SENDGRID_API_KEY) {
+    return nodemailer.createTransport({
+      host: 'smtp.sendgrid.net',
+      port: 587,
+      auth: {
+        user: 'apikey',
+        pass: process.env.SENDGRID_API_KEY
+      }
+    });
+  }
+  
+  // Fallback to Gmail for development
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: process.env.EMAIL_USER || 'your-email@gmail.com',
       pass: process.env.EMAIL_PASS || 'your-app-password'
-    }
+    },
+    // Add connection timeout settings
+    connectionTimeout: 60000, // 60 seconds
+    greetingTimeout: 30000,   // 30 seconds
+    socketTimeout: 60000      // 60 seconds
   });
 };
 

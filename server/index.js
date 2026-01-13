@@ -24,8 +24,13 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   skip: (req) => {
-    // Skip rate limiting for health check
-    return req.path === '/api/health';
+    // Skip rate limiting for health check and email
+    return req.path === '/api/health' || req.path === '/api/files/share-email';
+  },
+  // Trust proxy but validate IP properly
+  trustProxy: false,
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress;
   }
 });
 
