@@ -29,7 +29,7 @@ const sendFileShareEmail = async (toEmail, fromUser, fileName, shareUrl, fileSiz
       const msg = {
         to: toEmail,
         from: process.env.EMAIL_FROM || 'noreply@filesharing.com',
-        subject: `📁 File Shared: ${fileName}`,
+        subject: `File Shared: ${fileName}`,
         html: `
           <!DOCTYPE html>
           <html>
