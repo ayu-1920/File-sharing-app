@@ -57,9 +57,9 @@ app.use('/api/files', fileRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    message: 'File sharing server is running',
+  res.json({
+    status: 'OK',
+    message: 'File sharing server is running - updated',
     timestamp: new Date().toISOString()
   });
 });
