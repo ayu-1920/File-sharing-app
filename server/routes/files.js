@@ -330,7 +330,11 @@ router.post('/share-email', authenticateToken, async (req, res) => {
 
     // Send the actual email
     try {
-      await sendFileShareEmail(
+      console.log(`Attempting to send email to ${email} for file: ${file.originalName}`);
+      console.log(`Using EMAIL_USER: ${process.env.EMAIL_USER ? 'SET' : 'NOT SET'}`);
+      console.log(`Using EMAIL_PASS: ${process.env.EMAIL_PASS ? 'SET' : 'NOT SET'}`);
+      
+      const result = await sendFileShareEmail(
         email,
         req.user.username || req.user.email,
         file.originalName,
@@ -338,11 +342,17 @@ router.post('/share-email', authenticateToken, async (req, res) => {
         file.size
       );
       
-      console.log(`Email successfully sent to ${email} for file: ${file.originalName}`);
+      console.log(`Email successfully sent to ${email}. Message ID: ${result.messageId}`);
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
-      // Still return success to the client, but log the error
-      // In production, you might want to handle this differently
+      console.error('Email error details:', emailError.message);
+      
+      // Return error to client instead of silent failure
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send email. Please check email configuration.',
+        error: emailError.message
+      });
     }
 
     res.json({
