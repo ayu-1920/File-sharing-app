@@ -21,8 +21,13 @@ router.post('/upload', authenticateToken, upload.single('file'), handleMulterErr
       });
     }
 
+    console.log(`📤 File upload request: ${req.file.originalname}`);
+    console.log(`📁 File path: ${req.file.path}`);
+    console.log(`📏 File size: ${req.file.size} bytes`);
+
     // Generate unique share ID
     const shareId = uuidv4();
+    console.log(`🆔 Generated shareId: ${shareId}`);
 
     // Create file document
     const file = new File({
@@ -213,8 +218,10 @@ router.get('/download/:shareId', async (req, res) => {
     try {
       await fs.access(file.path);
       console.log(`✅ File exists on disk: ${file.path}`);
+      console.log(`📁 File size on disk: ${(await fs.stat(file.path)).size} bytes`);
     } catch (error) {
       console.log(`❌ File not found on disk: ${file.path}`);
+      console.log(`❌ Error details:`, error.message);
       return res.status(404).json({
         success: false,
         message: 'File not found on server'
