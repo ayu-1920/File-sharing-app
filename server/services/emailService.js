@@ -1,159 +1,163 @@
 const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// Create a transporter using SendGrid (more reliable for cloud hosting)
+// Initialize SendGrid
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+// Create a transporter using SendGrid API (more reliable than SMTP)
 const createTransport = () => {
-  // Always use SendGrid for production
+  // Always use SendGrid API for production
   if (process.env.SENDGRID_API_KEY) {
-    console.log('Using SendGrid transporter');
-    return nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      auth: {
-        user: 'apikey',
-        pass: process.env.SENDGRID_API_KEY
-      }
-    });
+    console.log('Using SendGrid API (not SMTP)');
+    return null; // We'll use SendGrid API directly
   }
   
   // Never use Gmail in production
-  console.log('Warning: Gmail not configured in production');
+  console.log('Warning: Email service not configured');
   return null;
 };
 
 // Send file sharing email
 const sendFileShareEmail = async (toEmail, fromUser, fileName, shareUrl, fileSize) => {
   try {
-    const transporter = createTransport();
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'your-email@gmail.com',
-      to: toEmail,
-      subject: `📁 File Shared: ${fileName}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>File Shared With You</title>
-          <style>
-            body {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              line-height: 1.6;
-              color: #333;
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-            .container {
-              background: white;
-              border-radius: 20px;
-              padding: 40px;
-              box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            }
-            .header {
-              text-align: center;
-              margin-bottom: 30px;
-            }
-            .logo {
-              font-size: 48px;
-              margin-bottom: 20px;
-            }
-            h1 {
-              color: #333;
-              font-size: 28px;
-              margin-bottom: 10px;
-            }
-            .file-info {
-              background: linear-gradient(135deg, #ff6b35 0%, #8b5cf6 100%);
-              color: white;
-              padding: 20px;
-              border-radius: 15px;
-              margin: 20px 0;
-            }
-            .file-name {
-              font-size: 20px;
-              font-weight: bold;
-              margin-bottom: 10px;
-            }
-            .file-size {
-              opacity: 0.9;
-              font-size: 14px;
-            }
-            .download-btn {
-              display: inline-block;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              padding: 15px 30px;
-              text-decoration: none;
-              border-radius: 50px;
-              font-weight: bold;
-              margin: 20px 0;
-              transition: transform 0.3s ease;
-            }
-            .download-btn:hover {
-              transform: translateY(-2px);
-            }
-            .footer {
-              text-align: center;
-              margin-top: 30px;
-              padding-top: 20px;
-              border-top: 1px solid #eee;
-              color: #666;
-              font-size: 14px;
-            }
-            .security-note {
-              background: #f8f9fa;
-              padding: 15px;
-              border-radius: 10px;
-              margin: 20px 0;
-              border-left: 4px solid #ff6b35;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <div class="logo">📁</div>
-              <h1>File Shared With You!</h1>
+    // Use SendGrid API directly (more reliable than SMTP)
+    if (process.env.SENDGRID_API_KEY) {
+      console.log('Sending email via SendGrid API');
+      
+      const msg = {
+        to: toEmail,
+        from: process.env.EMAIL_FROM || 'noreply@filesharing.com',
+        subject: `📁 File Shared: ${fileName}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>File Shared With You</title>
+            <style>
+              body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              }
+              .container {
+                background: white;
+                border-radius: 20px;
+                padding: 40px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 30px;
+              }
+              .logo {
+                font-size: 48px;
+                margin-bottom: 20px;
+              }
+              h1 {
+                color: #333;
+                font-size: 28px;
+                margin-bottom: 10px;
+              }
+              .file-info {
+                background: linear-gradient(135deg, #ff6b35 0%, #8b5cf6 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                margin: 20px 0;
+              }
+              .file-name {
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 10px;
+              }
+              .file-size {
+                opacity: 0.9;
+                font-size: 14px;
+              }
+              .download-btn {
+                display: inline-block;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 30px;
+                text-decoration: none;
+                border-radius: 50px;
+                font-weight: bold;
+                margin: 20px 0;
+                transition: transform 0.3s ease;
+              }
+              .download-btn:hover {
+                transform: translateY(-2px);
+              }
+              .footer {
+                text-align: center;
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                color: #666;
+                font-size: 14px;
+              }
+              .security-note {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 10px;
+                margin: 20px 0;
+                border-left: 4px solid #ff6b35;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <div class="logo">📁</div>
+                <h1>File Shared With You!</h1>
+              </div>
+              
+              <p>Hello,</p>
+              <p><strong>${fromUser}</strong> has shared a file with you through our secure file sharing platform.</p>
+              
+              <div class="file-info">
+                <div class="file-name">📄 ${fileName}</div>
+                <div class="file-size">File Size: ${formatFileSize(fileSize)}</div>
+              </div>
+              
+              <div style="text-align: center;">
+                <a href="${shareUrl}" class="download-btn">
+                  🚀 Download File Now
+                </a>
+              </div>
+              
+              <div class="security-note">
+                <strong>🔒 Security Notice:</strong> This download link is secure and will expire after 7 days for your privacy and security.
+              </div>
+              
+              <p>If you have any questions or didn't expect this file, please contact the sender directly.</p>
+              
+              <div class="footer">
+                <p>Best regards,<br>The FileShare Team</p>
+                <p style="font-size: 12px; color: #999;">
+                  This is an automated message. Please do not reply to this email.
+                </p>
+              </div>
             </div>
-            
-            <p>Hello,</p>
-            <p><strong>${fromUser}</strong> has shared a file with you through our secure file sharing platform.</p>
-            
-            <div class="file-info">
-              <div class="file-name">📄 ${fileName}</div>
-              <div class="file-size">File Size: ${formatFileSize(fileSize)}</div>
-            </div>
-            
-            <div style="text-align: center;">
-              <a href="${shareUrl}" class="download-btn">
-                🚀 Download File Now
-              </a>
-            </div>
-            
-            <div class="security-note">
-              <strong>🔒 Security Notice:</strong> This download link is secure and will expire after 7 days for your privacy and security.
-            </div>
-            
-            <p>If you have any questions or didn't expect this file, please contact the sender directly.</p>
-            
-            <div class="footer">
-              <p>Best regards,<br>The FileShare Team</p>
-              <p style="font-size: 12px; color: #999;">
-                This is an automated message. Please do not reply to this email.
-              </p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    };
+          </body>
+          </html>
+        `
+      };
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', result.messageId);
-    return { success: true, messageId: result.messageId };
+      const result = await sgMail.send(msg);
+      console.log('Email sent successfully via SendGrid API:', result[0].headers['x-message-id']);
+      return { success: true, messageId: result[0].headers['x-message-id'] };
+    }
+    
+    throw new Error('Email service not configured');
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email: ' + error.message);
